@@ -6,12 +6,33 @@
 
 /*http://www.joshmorony.com/create-a-running-platformer-game-in-phaser-with-tilemaps/ */
 
-
+//https://www.youtube.com/watch?v=qKtrk6dgfsc
 
 //maybe just make the first level into 3 different levels
 //1 mario style outside, then second goes into ground and is spooker level
 
 //or one level and mario tunnel goes to spoopy town
+
+
+/*
+Pick one tilemap for each level
+*/
+
+/*
+jumping
+and platforming with clouds
+powerups
+*/
+
+
+/*first obstacle
+turret shoots platforms*/
+/*
+KNOWN BUGS:
+
+can jump while falling
+W key does not work for double jump
+*/
 
 BasicGame.LevelOne = function (game) {
 
@@ -53,9 +74,6 @@ var sprite,
     enemiesAlive,
     jumps = 0;
 
-//define game here so don't have to repeat this.game over and over.
-//var game = this.game
-//add to alllll cancer
 
 BasicGame.LevelOne.prototype = {
 
@@ -73,13 +91,50 @@ BasicGame.LevelOne.prototype = {
         //set map equal to the level one map
         map = this.game.add.tilemap('level1');
 
+        //add tilesheets
+        map.addTilesetImage('ground_1x1');
+        map.addTilesetImage('walls_1x2');
+        map.addTilesetImage('tiles2');
+        map.addTilesetImage('stuff');
+        map.addTilesetImage('tilesheet');
+        map.addTilesetImage('phaser_tilemap_collision');
+        map.addTilesetImage('tiles');
+        map.addTilesetImage('outside');
+        map.addTilesetImage('outside2');
+        
+        //create the layers
+        layer = map.createLayer('Tile Layer 1');
+        layer2 = map.createLayer('Tile Layer 2');
+        layer3 = map.createLayer('Tile Layer 3'); //background layer
+        layer.resizeWorld();
+
+
+
+        //just create a new sprite sheet, save it over `1x1 and everything should work
+        //remember change collision between
+       // map.setCollisionBetween(1, 5000, ');
+       
+    //Before you can use the collide function you need to set what tiles can collide
+    map.setCollisionBetween(1, 100, true, 'Tile Layer 1');
+    map.setCollisionBetween(1, 2000, true, 'Tile Layer 2');
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         //bind left and right and jump keys
         leftKey = this.game.input.keyboard.addKey(Phaser.Keyboard.A);
         rightKey = this.game.input.keyboard.addKey(Phaser.Keyboard.D);
         upKey = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
-
-
 
         //add music
         this.music = this.add.audio('lvl1music');
@@ -87,23 +142,7 @@ BasicGame.LevelOne.prototype = {
         this.music.volume -= 0.7;
         //play the music
         this.music.play();
-
-        map.addTilesetImage('ground_1x1');
-        map.addTilesetImage('walls_1x2');
-        map.addTilesetImage('tiles2');
-        map.addTilesetImage('greywall');
-
-
-
-        //just create a new sprite sheet, save it over layer1x1 and everything should work
-        //remember change collision between
-
-
-
-        layer = map.createLayer('Tile Layer 1');
-        map.setCollisionBetween(1, 3000);
-        layer.resizeWorld();
-
+        
         //  Here we create our coins group
         coins = this.game.add.group();
         coins.enableBody = true;
@@ -141,6 +180,7 @@ BasicGame.LevelOne.prototype = {
     update: function () {
 
         this.game.physics.arcade.collide(p, layer);
+        this.game.physics.arcade.collide(p, layer2);
         this.game.physics.arcade.overlap(p, coins, collectCoin, null, this);
 
         p.body.velocity.x = 0;
@@ -169,69 +209,66 @@ BasicGame.LevelOne.prototype = {
             p.frame = 4;
         }
 
-        /*  if (cursors.up.isDown) {
-              if (p.body.onFloor()) {
-                  p.body.velocity.y = -200;
-              }
-          }*/
-
-
-
-
-
-/*this should fix doublejump just add it
-        this.jumpCount = 0;
-        this.jumpkey = game.input.keyboard.addKey(Phaser.Keyboard.UP);
-        this.jumpkey.onDown.add(jumpCheck, this); //tells phaser to fire jumpCheck() ONCE per onDown 
-        event.jumpCheck = function () {
-            if (player.jumpCount < 2) {
-                player.jump();
-                player.jumpCount++;
-            }
-        }
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         // Set a variable that is true when the player is touching the ground
-        // and a variable for when the player is in the air
         var onTheGround = p.body.onFloor();
-        console.log(jumps);
-        //  Allow the player to jump if they are touching the ground.
-        if (cursors.up.isDown || upKey.isDown) {
-            if (onTheGround && jumps === 0) {
-                jumps = 1;
-                console.log(jumps);
-                //jump
-                p.body.velocity.y = -180;
-            }
-            //  else if (!onTheGround && jumps == 1 && p.body.velocity.y >= -150) {
-            //just make two clicks
-            else if (!onTheGround && jumps === 1) {
-                p.body.velocity.y = -180;
-                jumps = 2;
-                console.log(jumps);
-            }
-            else if (jumps == 2) {
-                jumps = 0;
-            }
 
+        // If the player is touching the ground, let him have 2 jumps
+        if (onTheGround) {
+            this.jumps = 2;
+            this.jumping = false;
         }
+
+        // Jump!
+        if (this.jumps > 0 && this.upInputIsActive(5)) {
+            p.body.velocity.y = -150;
+            this.jumping = true;
+        }
+
+        // Reduce the number of available jumps if the jump input is released
+        if (this.jumping && this.upInputReleased()) {
+            this.jumps--;
+            
+            this.jumping = false;
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+        /*
+        
+                // Set a variable that is true when the player is touching the ground
+                // and a variable for when the player is in the air
+                var onTheGround = p.body.onFloor();
+                console.log(jumps);
+                //  Allow the player to jump if they are touching the ground.
+                if (cursors.up.isDown || upKey.isDown) {
+                    if (onTheGround && jumps === 0) {
+                        jumps = 1;
+                        console.log(jumps);
+                        //jump
+                        p.body.velocity.y = -180;
+                    }
+                    //  else if (!onTheGround && jumps == 1 && p.body.velocity.y >= -150) {
+                    //just make two clicks
+                    else if (!onTheGround && jumps === 1) {
+                        p.body.velocity.y = -180;
+                        jumps = 2;
+                        console.log(jumps);
+                    }
+                    else if (jumps == 2) {
+                        jumps = 0;
+                    }
+        
+                }*/
     }
 
 
@@ -249,3 +286,33 @@ function render() {
     // game.debug.body(p);
     game.debug.bodyInfo(p, 32, 320);
 }
+
+
+/*need to add duration to 'W' jump key so it times properly*/
+
+
+// This function should return true when the player activates the "jump" control
+// In this case, either holding the up arrow or tapping or clicking on the center
+// part of the screen.
+BasicGame.LevelOne.prototype.upInputIsActive = function (duration) {
+    var isActive = false;
+
+    isActive = this.input.keyboard.downDuration(Phaser.Keyboard.UP, duration) &&
+        cursors.up.isDown || upKey.isDown
+    isActive |= (this.game.input.activePointer.justPressed(duration + 1000 / 60) &&
+        this.game.input.activePointer.x > this.game.width / 4 &&
+        this.game.input.activePointer.x < this.game.width / 2 + this.game.width / 4);
+
+    return isActive;
+};
+
+// This function returns true when the player releases the "jump" control
+BasicGame.LevelOne.prototype.upInputReleased = function () {
+    var released = false;
+
+    released = this.input.keyboard.upDuration(Phaser.Keyboard.UP) ||
+        upKey.isDown;
+    released |= this.game.input.activePointer.justReleased();
+
+    return released;
+};

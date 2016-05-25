@@ -27,11 +27,16 @@ BasicGame.Preloader.prototype = {
 	this.load.tilemap('level1', 'assets/tilemaps/level1.json', null, Phaser.Tilemap.TILED_JSON);
   this.game.load.image('ground_1x1', 'assets/images/ground_1x1.png');
   this.game.load.image('walls_1x2', 'assets/images/walls_1x2.png');
+	this.game.load.spritesheet('stuff', 'assets/images/stuff.png', 32, 32);
   this.game.load.image('tiles2', 'assets/images/tiles2.png');
-  this.game.load.image('phaser', 'assets/images/arrow.png');
-	this.game.load.image('greywall', 'assets/images/greywall.png');
+	this.game.load.image('tiles2', 'assets/images/tiles2.png');
+	this.game.load.image('tilesheet', 'assets/images/tilesheet.png');
+	this.game.load.image('phaser_tilemap_collision', 'assets/images/phaser_tilemap_collision.png');
+	this.game.load.image('tiles', 'assets/images/tiles.png');
+	this.game.load.image('outside', 'assets/images/outside.png');
+	this.game.load.image('outside2', 'assets/images/outside2.png');
   this.game.load.spritesheet('coin', 'assets/images/coin.png', 32, 32);
-		
+	
 		
 		
 		
